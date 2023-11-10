@@ -55,7 +55,6 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
   
-
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
@@ -63,17 +62,38 @@ function load_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
-    //print emails
-    emails.forEach((element) => {
-      
+
+    //first clear out previous emails displayed
+    const emailsList = document.querySelector('#emailsList');
+    emailsList.innerHTML = '';
+    
+    //display these emails
+    emails.forEach((email) => {
       const emailContent = document.createElement('div');
       emailContent.className = 'emails';
-      emailContent.innerHTML = `From: ${element.sender} Subject: ${element.subject} ${element.timestamp}`;
-      document.querySelector('#emailsList').appendChild(emailContent);       
+      emailContent.innerHTML = `From: ${email.sender} Subject: ${email.subject} at ${email.timestamp}`;
+      document.querySelector('#emailsList').appendChild(emailContent);
+      
+      //give this div its own id
+      emailContent.id = email.id;
+      emailContent.onclick = function() {
 
+        if (email.read === true) {
+          emailContent.style.background = '#D3D3D3';
+        }
+        else {
+          emailContent.style.background = 'white';
+        }
+        //mark email as read
+        if (!email.read) {
+          email.read = true;
+          console.log(email, email.read);
+        }
+      } 
     });
-
   });
   
 }
+
+
 
