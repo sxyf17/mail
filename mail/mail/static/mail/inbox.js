@@ -15,9 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function compose_email() {
 
-  // Show compose view and hide other views
-  document.querySelector('#emails-view').style.display = 'none';
+  // Show compose view and hide other views  
+  
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#emailsList').style.display = 'none';
+  document.querySelector('#email-content').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -53,6 +56,8 @@ function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
+  document.querySelector('#emailsList').style.display = 'block';
+  document.querySelector('#email-content').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   
   // Show the mailbox name
@@ -76,23 +81,76 @@ function load_mailbox(mailbox) {
       
       //give this div its own id
       emailContent.id = email.id;
+
+      if (email.read === true) {
+        emailContent.style.background = '#D3D3D3';
+      }
+      else {
+        emailContent.style.background = 'white';
+      }
+      
+      //mark email as read
       emailContent.onclick = function() {
 
-        if (email.read === true) {
-          emailContent.style.background = '#D3D3D3';
-        }
-        else {
-          emailContent.style.background = 'white';
-        }
-        //mark email as read
+        view_email(email.id);
         if (!email.read) {
-          email.read = true;
-          console.log(email, email.read);
+
+          fetch(`/emails/${email.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                read: true
+            })
+          })
+          emailContent.style.background = '#D3D3D3';
+          
+
         }
       } 
     });
   });
   
+}
+
+function view_email(email_id){
+
+  //get the email using the id
+  fetch(`/emails/${email_id}`)
+  .then(response => response.json())
+  .then(email => {
+      // Print email
+      console.log(email);
+
+      //show the email and hide other views
+      document.querySelector('#email-content').style.display = 'block';
+      document.querySelector('#emails-view').style.display = 'none';
+      document.querySelector('#emailsList').style.display = 'none';
+      document.querySelector('#compose-view').style.display = 'none';
+
+      // Get or create the elements
+      const header = document.getElementById('email-header') || document.createElement('div');
+      const subject = document.getElementById('email-subject') || document.createElement('div');
+      const body = document.getElementById('email-body') || document.createElement('div');
+
+      //set their id
+      header.id = 'email-header';
+      subject.id = 'email-subject';
+      body.id = 'email-body';
+
+      header.innerHTML = '';
+      subject.innerHTML = '';
+      body.innerHTML = '';
+
+
+      header.innerHTML = `From: ${email.sender} To: ${email.recipients} ${email.timestamp}`;
+      subject.innerHTML = `Subject: ${email.subject}`;
+      body.innerHTML = `${email.body}`;
+
+      document.querySelector('#email-content').appendChild(header);
+      document.querySelector('#email-content').appendChild(subject);
+      document.querySelector('#email-content').appendChild(body);
+
+
+  });
 }
 
 

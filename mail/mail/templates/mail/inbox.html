@@ -3,6 +3,7 @@
 
 {% block body %}
     <h2>{{ request.user.email }}</h2>
+    <p class="email-header">test</p>
 
     <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
     <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
@@ -29,6 +30,9 @@
             <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
             <input type="submit" class="btn btn-primary"/>
         </form>
+    </div>
+    <div id="email-content">
+        
     </div>
 {% endblock %}
 

@@ -4,6 +4,28 @@
     
 }
 
+#email-header {
+
+    background-color: azure;
+    padding: 10px;
+}
+
+#email-subject {
+
+    font-size: large;
+    padding: 10px;
+    border: 1px solid darkgray
+}
+
+#email-body {
+
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 100;
+    padding: 10px;
+    border: 1px solid darkgray;
+
+}
+
 textarea {
     min-height: 400px;
     
