@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
+
 function compose_email() {
 
   // Show compose view and hide other views  
@@ -60,6 +61,7 @@ function load_mailbox(mailbox) {
   document.querySelector('#email-content').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   
+
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
@@ -111,6 +113,7 @@ function load_mailbox(mailbox) {
   
 }
 
+//view individual emails
 function view_email(email_id){
 
   //get the email using the id
@@ -125,6 +128,8 @@ function view_email(email_id){
       document.querySelector('#emails-view').style.display = 'none';
       document.querySelector('#emailsList').style.display = 'none';
       document.querySelector('#compose-view').style.display = 'none';
+      document.querySelector('#reply-form').style.display = 'none';
+
 
       // Get or create the elements
       const header = document.getElementById('email-header') || document.createElement('div');
@@ -145,10 +150,59 @@ function view_email(email_id){
       subject.innerHTML = `Subject: ${email.subject}`;
       body.innerHTML = `${email.body}`;
 
-      document.querySelector('#email-content').appendChild(header);
-      document.querySelector('#email-content').appendChild(subject);
-      document.querySelector('#email-content').appendChild(body);
+      document.querySelector('#email-text').appendChild(header);
+      document.querySelector('#email-text').appendChild(subject);
+      document.querySelector('#email-text').appendChild(body);
 
+      if (email.archived === false) {
+        document.querySelector('#unarchive').style.display = 'none';
+        document.querySelector('#archive').style.display = 'block';
+
+        document.querySelector('#archive').onclick = function () {
+
+          fetch(`/emails/${email.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              archived: true
+            })
+          })
+          load_mailbox('inbox');
+        }
+
+      } else {
+        
+        document.querySelector('#unarchive').style.display = 'block';
+        document.querySelector('#archive').style.display = 'none';
+        
+        document.querySelector('#unarchive').onclick = function () {
+
+          fetch(`/emails/${email.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              archived: false
+            })
+          })
+          load_mailbox('inbox');
+        }
+        
+      }
+
+      //allow for replies to this email
+      
+      document.querySelector('#reply').onclick = function () {
+
+        compose_email();
+        document.querySelector('#compose-recipients').value = email.sender;
+        let subject = email.subject;
+        if (!subject.startsWith("Re: ")) {
+          subject = '';
+          subject += "Re: " + email.subject;
+        }
+        document.querySelector('#compose-subject').value = subject;
+        document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote:\n${email.body}`;
+
+      }
+      
 
   });
 }
